@@ -1,0 +1,87 @@
+<html>
+    <head>
+        <title>TEST PAGE</title>
+        <style>
+            body {
+                background: #3498db;
+            }
+            div.center {
+                margin: auto;
+            }
+            div {
+                border: 3px solid rgba(0, 128, 0, 0.49);
+            }
+            div.active {
+                background: #1abc9c;
+            }
+            div.negative {
+                background: #e74c3c;
+            }
+        </style>
+        <script>
+            // global
+            let connecting = true;
+            let currentStatus = '';
+        </script>
+    </head>
+    <body>
+        <div class="center" style="width: 80%; height: 500px; background: #ecf0f1; margin-top: 100px;   display: flex; flex-direction: column;">
+            <div class="upper">
+                <h2 style="padding: 10px 50px;">DDS STATUS</h2>
+            </div>
+            <div class="lower" style="display: flex; flex-direction: row; justify-content: space-around; align-items: center; flex: 1;">
+                <div class="left">
+                    <button id="toggle" style="
+                        color: #ecf0f1;
+                        background: #95a5a6;
+                        width: 216px;
+                        height: 106px;
+                        border-radius: 5px;
+                        font-size: 180%;
+                        font-weight: 600;">TOGGLE STATUS</button>
+                </div>
+                <div class="right">
+                    <h2 class="status">STATUS</h2>
+                    <div style=" text-align: center;" id="status-container" class=""><h5 id="status">CONNECTING...</h5></div>
+                </div>
+            </div>
+        
+        </div>
+
+        <script>
+            // init
+            let status = document.getElementById("status");
+            let statusContainer = document.getElementById("status-container");
+
+            const updateStatus = () => {
+                console.log('LOG');
+                fetch('/api/status').then(resp => {
+                    resp.text().then(text => {
+                        console.log(text);
+                        currentStatus = text;
+                        status.innerText = text;
+                        statusContainer.className = text;
+                    });
+                });
+            };
+
+            updateStatus();  // first time
+
+            const setStatus = (nextStatus) => {  // return Promise
+                return fetch(`/api/status/set/${nextStatus}`, {
+                    method: 'POST'
+                });
+            };
+
+            const toggleStatus = () => {
+                if(currentStatus == '') return;
+                setStatus(currentStatus == 'Negative' ? 'Active' : 'Negative').then(updateStatus);
+            }
+
+            let toggle = document.getElementById("toggle");
+
+            toggle.addEventListener('click', toggleStatus);
+
+        </script>
+    </body>
+</html>
